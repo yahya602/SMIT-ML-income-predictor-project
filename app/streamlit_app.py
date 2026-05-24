@@ -4,9 +4,11 @@ import pickle
 import os
 
 st.set_page_config(page_title="Income Predictor", page_icon="🪙")
-st.title("💰 Adult Income Predictor Application")
-st.write("Provide demographics data to check if individual income exceeds **$50k/year**.")
-
+st.title("🪙 Smart Income Predictor")
+st.write(
+    "Enter basic demographic profile details below to check if an individual's "
+    "annual income is estimated to exceed **$50,000 per year**."
+)
 # Direct Pipeline Model Loading (No FastAPI required in cloud)
 @st.cache_resource
 def load_model():
