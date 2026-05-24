@@ -1,4 +1,4 @@
-# Smart Income Predictor - ML Classification Project
+# 💲Smart Income Predictor - ML Classification Project
 
 ## 📌 Project Overview
 This project is an end-to-end Machine Learning Classification system built using the classic **Adult Census Income Dataset**. The goal is to predict whether an individual's annual income exceeds **$50,000** based on demographic data (such as age, education, occupation, and hours worked per week). 
