@@ -1,4 +1,4 @@
-# 💰 Adult Income Predictor - ML Classification Project
+# Smart Income Predictor - ML Classification Project
 
 ## 📌 Project Overview
 This project is an end-to-end Machine Learning Classification system built using the classic **Adult Census Income Dataset**. The goal is to predict whether an individual's annual income exceeds **$50,000** based on demographic data (such as age, education, occupation, and hours worked per week). 
@@ -23,9 +23,8 @@ The saved file contains both the structural data preprocessors (imputers, scaler
 ---
 
 ## 🌐 Live Demo Links
-* **Frontend Web Application (Streamlit Cloud)**: [👉 Click here to view the Live Demo App](YOUR_STREAMLIT_LIVE_URL)
-* **Backend API Engine (Hugging Face Spaces)**: [👉 Click here to view the Live Backend API](YOUR_HUGGING_FACE_BACKEND_URL)
-
+* **Frontend Web Application (Streamlit Cloud)**: https://smart-income-predictor.streamlit.app/
+* **Backend API Engine (Hugging Face Spaces)**: https://huggingface.co/spaces/yahya602/smart-income-API
 ---
 
 ## 📁 Repository Structure
