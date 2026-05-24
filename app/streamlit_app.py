@@ -10,7 +10,7 @@ st.write(
 )
 
 # Decoupled Architecture: Set API target endpoint to your live Hugging Face API
-API_URL = "https://yahya602-smart-income-api.hf.space"
+API_URL = "https://yahya602-smart-income-api.hf.spacepredict"
 
 # Categorical options extracted from the Adult dataset
 workclass_opts = ['Private', 'Self-emp-not-inc', 'Self-emp-inc', 'Federal-gov', 'Local-gov', 'State-gov', 'Without-pay', 'Never-worked']
