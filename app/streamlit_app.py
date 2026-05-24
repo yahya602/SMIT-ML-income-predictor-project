@@ -11,7 +11,7 @@ st.write(
 
 # FIXED BULLETPROOF ENDPOINT WITH CORRECT ROADS AND SLASHES
 # Change Line 13 to point to the base URL (Remove /predict from the end)
-API_URL = "https://yahya602-smart-income-api.hf.space/"
+API_URL = "https://yahya602-smart-income-api.hf.space"
 
 
 # Categorical options extracted from the Adult dataset
