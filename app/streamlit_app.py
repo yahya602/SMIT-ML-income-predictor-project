@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 import os
 
-st.set_page_config(page_title="Adult Income Predictor", page_icon="💰")
+st.set_page_config(page_title="Income Predictor", page_icon="🪙")
 st.title("💰 Adult Income Predictor Application")
 st.write("Provide demographics data to check if individual income exceeds **$50k/year**.")
 
