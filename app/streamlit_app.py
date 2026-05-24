@@ -1,15 +1,26 @@
 import streamlit as st
-import requests
+import pandas as pd
+import pickle
+import os
 
 st.set_page_config(page_title="Adult Income Predictor", page_icon="💰")
 st.title("💰 Adult Income Predictor Application")
 st.write("Provide demographics data to check if individual income exceeds **$50k/year**.")
 
+# Direct Pipeline Model Loading (No FastAPI required in cloud)
+@st.cache_resource
+def load_model():
+    # Looks for model.pkl in root or app directory automatically
+    model_path = "model.pkl" if os.path.exists("model.pkl") else os.path.join("app", "model.pkl")
+    with open(model_path, "rb") as file:
+        return pickle.load(file)
 
-# FIXED: Appended /predict to the endpoint URL to prevent KeyError
-API_URL = "http://localhost:8000/predict"
+try:
+    model = load_model()
+except Exception as e:
+    st.error(f"Error loading machine learning architecture file (model.pkl): {e}")
+    st.stop()
 
- 
 # Categorical options extracted from the Adult dataset
 workclass_opts = ['Private', 'Self-emp-not-inc', 'Self-emp-inc', 'Federal-gov', 'Local-gov', 'State-gov', 'Without-pay', 'Never-worked']
 edu_opts = ['Bachelors', 'Some-college', '11th', 'HS-grad', 'Prof-school', 'Assoc-acdm', 'Assoc-voc', '9th', '7th-8th', '12th', 'Masters', '1st-4th', '10th', 'Doctorate', '5th-6th', 'Preschool']
@@ -19,7 +30,6 @@ relation_opts = ['Wife', 'Own-child', 'Husband', 'Not-in-family', 'Other-relativ
 race_opts = ['White', 'Asian-Pac-Islander', 'Amer-Indian-Eskimo', 'Other', 'Black']
 country_opts = ['United-States', 'Cambodia', 'England', 'Puerto-Rico', 'Canada', 'Germany', 'Outlying-US(Guam-USVI-etc)', 'India', 'Japan', 'Greece', 'South', 'China', 'Cuba', 'Iran', 'Honduras', 'Philippines', 'Italy', 'Poland', 'Jamaica', 'Vietnam', 'Mexico', 'Portugal', 'Ireland', 'France', 'Dominican-Republic', 'Laos', 'Ecuador', 'Taiwan', 'Haiti', 'Columbia', 'Hungary', 'Guatemala', 'Nicaragua', 'Scotland', 'Thailand', 'Yugoslavia', 'El-Salvador', 'Trinadad&Tobago', 'Peru', 'Hong', 'Holand-Netherlands']
 
-# Create columns for nice layout
 col1, col2 = st.columns(2)
 
 with col1:
@@ -41,27 +51,42 @@ with col2:
     country = st.selectbox("Native Country", country_opts)
 
 if st.button("Predict Classification"):
-    # Match the FastAPI Pydantic Model keys exactly
-    payload = {
-        "age": age, "fnlwgt": fnlwgt, "educational_num": edu_num,
-        "capital_gain": cap_gain, "capital_loss": cap_loss, "hours_per_week": hours,
-        "workclass": workclass, "education": education, "marital_status": marital,
-        "occupation": occupation, "relationship": relationship, "race": race,
-        "gender": gender, "native_country": country
+    formatted_data = {
+        'age': age,
+        'fnlwgt': fnlwgt,
+        'educational-num': edu_num,
+        'capital-gain': cap_gain,
+        'capital-loss': cap_loss,
+        'hours-per-week': hours,
+        'workclass': workclass,
+        'education': education,
+        'marital-status': marital,
+        'occupation': occupation,
+        'relationship': relationship,
+        'race': race,
+        'gender': gender,
+        'native-country': country
     }
     
-    try:
-        with st.spinner("Calling Backend Engine..."):
-            response = requests.post(API_URL, json=payload)
-            res_data = response.json()
+    df = pd.DataFrame([formatted_data])
+    
+    with st.spinner("Processing local prediction matrices..."):
+        try:
+            prediction = model.predict(df)[0]
             
-        st.subheader("Result Dashboard")
-        if res_data["income_class"] == ">50K":
-            st.success(f"Income Prediction: **{res_data['income_class']}** (High Earner)")
-        else:
-            st.warning(f"Income Prediction: **{res_data['income_class']}** (Standard Earner)")
+            try:
+                probability = model.predict_proba(df)[0][prediction] * 100
+            except:
+                probability = None
+
+            result = ">50K" if prediction == 1 else "<=50K"
             
-        st.info(f"Model Certainty Index: {res_data.get('confidence', 'N/A')}")
-        
-    except Exception as e:
-        st.error(f"Cannot sync with API backend. Check URL config. Error: {e}")
+            st.subheader("Result Dashboard")
+            if result == ">50K":
+                st.success(f"Income Prediction: **{result}** (High Earner)")
+            else:
+                st.warning(f"Income Prediction: **{result}** (Standard Earner)")
+                
+            st.info(f"Model Certainty Index: {f'{probability:.2f}%' if probability else 'N/A'}")
+        except Exception as err:
+            st.error(f"Inference pipeline execution failed: {err}")
