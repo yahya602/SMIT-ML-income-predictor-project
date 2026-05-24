@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pickle
-import os
+import requests
 
 st.set_page_config(page_title="Income Predictor", page_icon="💲")
 st.title("💲 Smart Income Predictor")
@@ -9,19 +8,9 @@ st.write(
     "Enter basic demographic profile details below to check if an individual's "
     "annual income is estimated to exceed **$50,000 per year**."
 )
-# Direct Pipeline Model Loading (No FastAPI required in cloud)
-@st.cache_resource
-def load_model():
-    # Looks for model.pkl in root or app directory automatically
-    model_path = "model.pkl" if os.path.exists("model.pkl") else os.path.join("app", "model.pkl")
-    with open(model_path, "rb") as file:
-        return pickle.load(file)
 
-try:
-    model = load_model()
-except Exception as e:
-    st.error(f"Error loading machine learning architecture file (model.pkl): {e}")
-    st.stop()
+# Decoupled Architecture: Set API target endpoint to your live Hugging Face API
+API_URL = "https://hf.space"
 
 # Categorical options extracted from the Adult dataset
 workclass_opts = ['Private', 'Self-emp-not-inc', 'Self-emp-inc', 'Federal-gov', 'Local-gov', 'State-gov', 'Without-pay', 'Never-worked']
@@ -53,42 +42,37 @@ with col2:
     country = st.selectbox("Native Country", country_opts)
 
 if st.button("Predict Classification"):
-    formatted_data = {
-        'age': age,
-        'fnlwgt': fnlwgt,
-        'educational-num': edu_num,
-        'capital-gain': cap_gain,
-        'capital-loss': cap_loss,
-        'hours-per-week': hours,
-        'workclass': workclass,
-        'education': education,
-        'marital-status': marital,
-        'occupation': occupation,
-        'relationship': relationship,
-        'race': race,
-        'gender': gender,
-        'native-country': country
+    # Send keys matching the Pydantic schema required by your FastAPI backend
+    payload = {
+        "age": age,
+        "fnlwgt": fnlwgt,
+        "educational_num": edu_num,
+        "capital_gain": cap_gain,
+        "capital_loss": cap_loss,
+        "hours_per_week": hours,
+        "workclass": workclass,
+        "education": education,
+        "marital_status": marital,
+        "occupation": occupation,
+        "relationship": relationship,
+        "race": race,
+        "gender": gender,
+        "native_country": country
     }
     
-    df = pd.DataFrame([formatted_data])
-    
-    with st.spinner("Processing local prediction matrices..."):
-        try:
-            prediction = model.predict(df)[0]
+    try:
+        with st.spinner("Calling Backend Hugging Face API Engine..."):
+            # Execute standard POST request to the cloud server
+            response = requests.post(API_URL, json=payload)
+            res_data = response.json()
             
-            try:
-                probability = model.predict_proba(df)[0][prediction] * 100
-            except:
-                probability = None
-
-            result = ">50K" if prediction == 1 else "<=50K"
+        st.subheader("Result Dashboard")
+        if res_data["income_class"] == ">50K":
+            st.success(f"Income Prediction: **{res_data['income_class']}** (High Earner)")
+        else:
+            st.warning(f"Income Prediction: **{res_data['income_class']}** (Standard Earner)")
             
-            st.subheader("Result Dashboard")
-            if result == ">50K":
-                st.success(f"Income Prediction: **{result}** (High Earner)")
-            else:
-                st.warning(f"Income Prediction: **{result}** (Standard Earner)")
-                
-            st.info(f"Model Certainty Index: {f'{probability:.2f}%' if probability else 'N/A'}")
-        except Exception as err:
-            st.error(f"Inference pipeline execution failed: {err}")
+        st.info(f"Model Certainty Index: {res_data.get('confidence', 'N/A')}")
+        
+    except Exception as e:
+        st.error(f"Cannot sync with API backend. Check URL config or HF Status. Error: {e}")
