@@ -1,8 +1,5 @@
-pandas
-scikit-learn
-pickle
-fastapi
-uvicorn
-pydantic
-streamlit
-requests
+pandas==3.0.3
+scikit-learn==1.8.0
+pydantic==2.13.4
+streamlit==1.57.0
+requests==2.34.0
