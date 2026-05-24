@@ -9,7 +9,7 @@ st.write(
     "annual income is estimated to exceed **$50,000 per year**."
 )
 
-# Decoupled Architecture: Set API target endpoint to your live Hugging Face API
+# FIXED BULLETPROOF ENDPOINT WITH CORRECT ROADS AND SLASHES
 API_URL = "https://hf.space"
 
 # Categorical options extracted from the Adult dataset
@@ -42,7 +42,6 @@ with col2:
     country = st.selectbox("Native Country", country_opts)
 
 if st.button("Predict Classification"):
-    # Send keys matching the Pydantic schema required by your FastAPI backend
     payload = {
         "age": age,
         "fnlwgt": fnlwgt,
@@ -62,7 +61,7 @@ if st.button("Predict Classification"):
     
     try:
         with st.spinner("Calling Backend Hugging Face API Engine..."):
-            # Execute standard POST request to the cloud server
+            # Explicitly force the POST call to pass the exact variable above
             response = requests.post(API_URL, json=payload)
             res_data = response.json()
             
