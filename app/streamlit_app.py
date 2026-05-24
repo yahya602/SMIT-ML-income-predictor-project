@@ -3,8 +3,8 @@ import pandas as pd
 import pickle
 import os
 
-st.set_page_config(page_title="Income Predictor", page_icon="🪙")
-st.title("🪙 Smart Income Predictor")
+st.set_page_config(page_title="Income Predictor", page_icon="💲")
+st.title("💲 Smart Income Predictor")
 st.write(
     "Enter basic demographic profile details below to check if an individual's "
     "annual income is estimated to exceed **$50,000 per year**."
